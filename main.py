@@ -2,7 +2,7 @@
 import requests
 import os
 import env
-
+import html
 
 STOCK_NAME = "TSLA"
 COMPANY_NAME = "Tesla Inc"
@@ -24,19 +24,18 @@ stock_parameters = {
 }
 
 news_parameters = {
-    "q" : "tesla",
-    "from" : "2024-09-25",
-    "sortBy" : "publishedAt",
-    "apikey" : news_api_key,
+    "qinTitle" : COMPANY_NAME,
+    "apiKey" : news_api_key,
 }
 
 response = requests.get(url = STOCK_ENDPOINT, params= stock_parameters)
 
 response.raise_for_status()
 
-# print(response.status_code)
+print(response.status_code)
 
 stock_data = response.json()["Time Series (Daily)"]
+
 stock_list = [value for (key, value) in stock_data.items()]
 
 #TODO 1. - Get yesterday's closing stock price. Hint: You can perform list comprehensions on Python dictionaries. e.g. [new_value for (key, value) in dictionary.items()]
@@ -59,31 +58,39 @@ print(diff_perc)
 
 #TODO 5. - If TODO4 percentage is greater than 5 then print("Get News").
 
-if perc_diff > 5:
+if diff_perc > 5:
     print("Get News")
 
-
-
-https://newsapi.org/v2/everything?q=tesla&from=2024-09-25&sortBy=publishedAt&apiKey=API_KEY
-
-    ## STEP 2: https://newsapi.org/ 
+    ## STEP 2: https://newsapi.org/
     # Instead of printing ("Get News"), actually get the first 3 news pieces for the COMPANY_NAME. 
 
 #TODO 6. - Instead of printing ("Get News"), use the News API to get articles related to the COMPANY_NAME.
 
-#TODO 7. - Use Python slice operator to create a list that contains the first 3 articles. Hint: https://stackoverflow.com/questions/509211/understanding-slice-notation
+response = requests.get(url = NEWS_ENDPOINT, params= news_parameters)
+response.raise_for_status()
+# print(response.status_code)
+news_data = response.json()["articles"]
+news_data_unes = html.unescape(news_data)
 
+#TODO 7. - Use Python slice operator to create a list that contains the first 3 articles. Hint: https://stackoverflow.com/questions/509211/understanding-slice-notation
 
     ## STEP 3: Use twilio.com/docs/sms/quickstart/python
     #to send a separate message with each article's title and description to your phone number. 
 
+three_articles = news_data_unes[:3]
+print(three_articles)
+
 #TODO 8. - Create a new list of the first 3 article's headline and description using list comprehension.
+
+article_text = [f"Headline: {article['title']}. \nBrief: {article['description']}" for article in three_articles]
 
 #TODO 9. - Send each article as a separate message via Twilio. 
 
-
+print(article_text)
 
 #Optional TODO: Format the message like this: 
+
+
 """
 TSLA: 🔺2%
 Headline: Were Hedge Funds Right About Piling Into Tesla Inc. (TSLA)?. 
